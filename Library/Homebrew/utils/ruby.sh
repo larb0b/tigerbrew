@@ -41,14 +41,19 @@ setup-ruby-path() {
         ruby_version_major="${ruby_version_major%%.*}"
       fi
 
-      if [[ "$ruby_version_major" != "2" || -n "$HOMEBREW_FORCE_VENDOR_RUBY" ]]
+      if [[ "$HOMEBREW_OSX_VERSION_NUMERIC" -gt "100309" ]]
       then
-        brew vendor-install ruby --quiet
-        if [[ ! -x "$vendor_ruby_path" ]]
+        if [[ "$ruby_version_major" != "2" || -n "$HOMEBREW_FORCE_VENDOR_RUBY" ]]
         then
-          odie "Failed to install vendor Ruby."
+          brew vendor-install ruby --quiet
+          if [[ ! -x "$vendor_ruby_path" ]]
+          then
+            odie "Failed to install vendor Ruby."
+          fi
+          HOMEBREW_RUBY_PATH="$vendor_ruby_path"
         fi
-        HOMEBREW_RUBY_PATH="$vendor_ruby_path"
+      else
+        HOMEBREW_RUBY_PATH="$(which ruby)"
       fi
     fi
   fi
